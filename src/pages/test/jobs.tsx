@@ -83,7 +83,7 @@ export default function Jobs({ jobs }: Props) {
       </Container>
 
       <JobsContainer>
-        {filteredJobs.slice(page - 1, page + 9).map((job) => (
+        {filteredJobs.slice((page - 1) * 10, page * 10).map((job) => (
           <Card key={job.jobId}>
             <h2>{job.jobTitle}</h2>
             <h3>{job.companyName}</h3>

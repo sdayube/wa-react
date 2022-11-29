@@ -77,7 +77,13 @@ export default function Jobs({ jobs }: Props) {
         >
           Jobs Posted in the Last 7 Days
         </Button>
-        <Button type="button" onClick={() => setFilteredJobs(jobs)}>
+        <Button
+          type="button"
+          onClick={() => {
+            setFilteredJobs(jobs);
+            setPage(1);
+          }}
+        >
           Reset Filters
         </Button>
       </Container>

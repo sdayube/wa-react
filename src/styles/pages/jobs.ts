@@ -21,6 +21,9 @@ export const Container = styled('div', {
   justifyContent: 'center',
   margin: '2rem 0',
   gap: '0.5rem',
+
+  // this is a media query that is used to make the Container responsive in
+  // smaller screens
   '@bp1': {
     flexDirection: 'column',
     padding: '0 1.5rem',

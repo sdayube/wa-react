@@ -1,108 +1,98 @@
+import axios, { AxiosError } from 'axios';
 import { GetServerSideProps } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Container,
   Card,
   Header,
-  JobsContainer,
-  Input,
+  FilmsContainer,
+  Image,
   Button,
 } from '../styles/pages/index';
 
-interface Job {
-  jobId: string;
-  jobTitle: string;
-  companyName: string;
-  jobDescription: string;
-  postedDate: string;
+interface Film {
+  id: string;
+  title: string;
+  movie_banner: string;
+  description: string;
+  director: string;
+  producer: string;
+  created_at: string;
 }
 
 interface Props {
-  jobs: Job[];
+  films: Film[];
+  pageCount: number;
 }
 
-export default function Jobs({ jobs }: Props) {
-  const [filteredJobs, setFilteredJobs] = useState(jobs);
+export default function Films({ films, pageCount }: Props) {
+  const [paginatedFilms, setPaginatedFilms] = useState(films);
+  const [updatedPageCount, setUpdatedPageCount] = useState(pageCount);
   const [page, setPage] = useState(1);
-  const [companyName, setCompanyName] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleFilterJobs() {
-    const filtered = jobs.filter(
-      (job) => job.companyName.toLowerCase() === companyName.toLowerCase(),
-    );
-    setFilteredJobs(filtered);
+  async function handleFilmUpdate() {
+    setPaginatedFilms([]);
+    setLoading(true);
+    setPage(1);
+    await axios
+      .put(`http://localhost:3333/films`)
+      .catch((err: AxiosError) => console.log(err));
+    await axios
+      .get(`http://localhost:3333/films`)
+      .then((response) => {
+        setPaginatedFilms(response.data.films);
+        setUpdatedPageCount(response.data.pageCount);
+        setLoading(false);
+      })
+      .catch((err: AxiosError) => console.log(err));
   }
 
-  function handleFilterByDate() {
-    const filtered = jobs.filter((job) => {
-      const daysAgo = job.postedDate.match(/\d+/);
-      return daysAgo && parseInt(daysAgo[0]) <= 7;
-    });
-    setFilteredJobs(filtered);
+  async function handlePageChange(newPage: number) {
+    await axios
+      .get(`http://localhost:3333/films?page=${newPage}`)
+      .then((response) => {
+        setPaginatedFilms(response.data.films);
+        setPage(newPage);
+      })
+      .catch((err: AxiosError) => {
+        console.log(err);
+      });
   }
 
   return (
     <div>
       <Header>
-        <h1>Zippia Jobs</h1>
+        <h1>Studio Ghibli Films</h1>
       </Header>
 
       <Container>
-        <Input
-          type="text"
-          placeholder="Company Name"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-        />
-        <Button
-          type="button"
-          onClick={() => {
-            handleFilterJobs();
-            setPage(1);
-            setCompanyName('');
-          }}
-        >
-          Jobs by Company Name
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            handleFilterByDate();
-            setPage(1);
-          }}
-        >
-          Jobs Posted in the Last 7 Days
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            setFilteredJobs(jobs);
-            setPage(1);
-          }}
-        >
-          Reset Filters
-        </Button>
+        <Button onClick={handleFilmUpdate}>Update Films</Button>
       </Container>
 
-      <JobsContainer>
-        {filteredJobs.slice((page - 1) * 10, page * 10).map((job) => (
-          <Card key={job.jobId}>
-            <h2>{job.jobTitle}</h2>
-            <h3>{job.companyName}</h3>
-            <div dangerouslySetInnerHTML={{ __html: job.jobDescription }} />
+      <FilmsContainer>
+        {paginatedFilms.map((film) => (
+          <Card key={film.id}>
+            <Image src={film.movie_banner} alt={film.title} />
+            <h2>{film.title}</h2>
+            <h3>
+              Director: {film.director} | Producer: {film.producer}
+            </h3>
+            <p>{film.description}</p>
           </Card>
         ))}
-      </JobsContainer>
+      </FilmsContainer>
 
       <Container>
-        {!filteredJobs.length && <h2>No jobs found</h2>}
+        {!loading && !paginatedFilms.length && <h2>No films found</h2>}
+        {loading && <h2>Loading...</h2>}
         {page > 1 && (
-          <Button type="button" onClick={() => setPage(page - 1)}>
+          <Button type="button" onClick={() => handlePageChange(page - 1)}>
             Previous Page
           </Button>
         )}
-        {page < filteredJobs.length / 10 && (
-          <Button type="button" onClick={() => setPage(page + 1)}>
+        {page < pageCount && (
+          <Button type="button" onClick={() => handlePageChange(page + 1)}>
             Next Page
           </Button>
         )}
@@ -112,25 +102,26 @@ export default function Jobs({ jobs }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const res = await fetch('https://www.zippia.com/api/jobs/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      companySkills: true,
-      dismissedListingHashes: [],
-      fetchJobDesc: true,
-      jobTitle: 'Business Analyst',
-      locations: [],
-      numJobs: 20,
-      previousListingHashes: [],
-    }),
-  });
+  try {
+    await axios.put('http://localhost:3333/films');
+  } catch (err) {
+    console.log('Error updating films: ', (err as AxiosError).message);
+  }
 
-  const data = await res.json();
-
-  return {
-    props: data,
-  };
+  try {
+    const paginatedFilms = await axios.get('http://localhost:3333/films');
+    const { data } = paginatedFilms;
+    return {
+      props: { ...data },
+    };
+  } catch (err) {
+    console.log('Error getting films: ', err);
+    return {
+      props: { films: [], pageCount: 0 },
+    };
+  }
 };
+
+// O seu front-end deverá ser feito em React e irá conter:
+// Tela com a exibição dos filmes consultado de forma paginada ao back-end da aplicação;
+// Botão de atualizar que acessará o end-point que faz a consulta aos 50 filmes e atualiza nosso banco de dados;

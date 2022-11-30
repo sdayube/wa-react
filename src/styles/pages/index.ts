@@ -24,18 +24,14 @@ export const Container = styled('div', {
   },
 });
 
-export const Input = styled('input', {
-  padding: '0.5rem 1rem',
-  outline: 'none',
-  border: '1px solid $borderGray',
-  borderRadius: '4px',
-  fontSize: '1rem',
-  lineHeight: 1.25,
-  color: '$text',
-  cursor: 'pointer',
-  transition: 'all 0.2s ease-in-out',
-  '&:focus': {
-    border: '1px solid $borderBlue',
+export const Image = styled('img', {
+  width: '100%',
+  height: 'auto',
+  objectFit: 'cover',
+  borderRadius: '0.25rem',
+  '@bp1': {
+    width: '100%',
+    margin: '0 0 1rem',
   },
 });
 
@@ -55,7 +51,7 @@ export const Button = styled('button', {
   },
 });
 
-export const JobsContainer = styled('ul', {
+export const FilmsContainer = styled('ul', {
   display: 'flex',
   flexWrap: 'wrap',
   gap: '1rem',

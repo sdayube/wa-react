@@ -13,7 +13,7 @@ export default function Document() {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+          href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=optional"
           rel="stylesheet"
         />
         <style

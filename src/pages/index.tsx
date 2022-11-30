@@ -7,7 +7,7 @@ import {
   JobsContainer,
   Input,
   Button,
-} from '../../styles/pages/jobs';
+} from '../styles/pages/index';
 
 interface Job {
   jobId: string;
@@ -21,14 +21,11 @@ interface Props {
   jobs: Job[];
 }
 
-// The Jobs component wil render the 'test/jobs' page.
 export default function Jobs({ jobs }: Props) {
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [page, setPage] = useState(1);
   const [companyName, setCompanyName] = useState('');
 
-  // This function will be used to filter the jobs by company name. The search
-  // will be case insensitive.
   function handleFilterJobs() {
     const filtered = jobs.filter(
       (job) => job.companyName.toLowerCase() === companyName.toLowerCase(),
@@ -36,7 +33,6 @@ export default function Jobs({ jobs }: Props) {
     setFilteredJobs(filtered);
   }
 
-  // This function will be used to filter jobs posted only in the last 7 days.
   function handleFilterByDate() {
     const filtered = jobs.filter((job) => {
       const daysAgo = job.postedDate.match(/\d+/);
@@ -93,8 +89,6 @@ export default function Jobs({ jobs }: Props) {
           <Card key={job.jobId}>
             <h2>{job.jobTitle}</h2>
             <h3>{job.companyName}</h3>
-            {/* Since the descriptions are returned in rich text format, we */
-            /* use the dangerouslySetInnerHTML prop to render the HTML */}
             <div dangerouslySetInnerHTML={{ __html: job.jobDescription }} />
           </Card>
         ))}
@@ -117,7 +111,6 @@ export default function Jobs({ jobs }: Props) {
   );
 }
 
-// We use this function to get the data from the Zippia API before the page is rendered. This function is called on the server side.
 export const getServerSideProps: GetServerSideProps = async () => {
   const res = await fetch('https://www.zippia.com/api/jobs/', {
     method: 'POST',

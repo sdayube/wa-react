@@ -1,7 +1,5 @@
 import { createStitches } from '@stitches/react';
 
-// the stitches library was used because it is easy to manage themes and variants with it
-
 export const {
   config,
   styled,
@@ -22,10 +20,6 @@ export const {
     fonts: {
       body: 'Open Sans, system-ui, sans-serif',
     },
-
-    // By setting the media query breakpoints here, we can use them in our
-    // component styles. This is a great way to keep the media queries
-    // consistent across the app.
   },
   media: {
     bp1: '(width < 640px)',

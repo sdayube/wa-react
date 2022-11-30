@@ -1,8 +1,5 @@
 import { styled } from '..';
 
-// most of the css in this file was sourced from the Zippia website, which was
-// used as a reference for the design of the cards
-
 export const Header = styled('header', {
   padding: '2rem 0',
   backgroundColor: '$title',
@@ -21,9 +18,6 @@ export const Container = styled('div', {
   justifyContent: 'center',
   margin: '2rem 0',
   gap: '0.5rem',
-
-  // this is a media query that is used to make the Container responsive in
-  // smaller screens
   '@bp1': {
     flexDirection: 'column',
     padding: '0 1.5rem',

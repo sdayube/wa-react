@@ -25,6 +25,8 @@ interface Props {
   pageCount: number;
 }
 
+axios.defaults.headers.common['Accept-Encoding'] = 'gzip, deflate';
+
 export default function Films({ films, pageCount }: Props) {
   const [paginatedFilms, setPaginatedFilms] = useState(films);
   const [updatedPageCount, setUpdatedPageCount] = useState(pageCount);
@@ -36,10 +38,10 @@ export default function Films({ films, pageCount }: Props) {
     setLoading(true);
     setPage(1);
     await axios
-      .put(`http://localhost:3333/films`)
+      .put(`${process.env.BACKEND_URL}/films`)
       .catch((err: AxiosError) => console.log(err));
     await axios
-      .get(`http://localhost:3333/films`)
+      .get(`${process.env.BACKEND_URL}/films`)
       .then((response) => {
         setPaginatedFilms(response.data.films);
         setUpdatedPageCount(response.data.pageCount);
@@ -52,7 +54,7 @@ export default function Films({ films, pageCount }: Props) {
 
   async function handlePageChange(newPage: number) {
     await axios
-      .get(`http://localhost:3333/films?page=${newPage}`)
+      .get(`${process.env.BACKEND_URL}/films?page=${newPage}`)
       .then((response) => {
         setPaginatedFilms(response.data.films);
         setPage(newPage);
@@ -105,13 +107,13 @@ export default function Films({ films, pageCount }: Props) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
-    await axios.put('http://localhost:3333/films');
+    await axios.put(`${process.env.BACKEND_URL}/films`);
   } catch (err) {
     console.error('Error updating films: ', (err as AxiosError).message);
   }
 
   try {
-    const paginatedFilms = await axios.get('http://localhost:3333/films');
+    const paginatedFilms = await axios.get(`${process.env.BACKEND_URL}/films`);
     const { data } = paginatedFilms;
     return {
       props: { ...data },
@@ -123,7 +125,3 @@ export const getServerSideProps: GetServerSideProps = async () => {
     };
   }
 };
-
-// O seu front-end deverá ser feito em React e irá conter:
-// Tela com a exibição dos filmes consultado de forma paginada ao back-end da aplicação;
-// Botão de atualizar que acessará o end-point que faz a consulta aos 50 filmes e atualiza nosso banco de dados;

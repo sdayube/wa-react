@@ -10,8 +10,8 @@ import {
   Button,
 } from '../styles/pages/index';
 
-interface Film {
-  id: string;
+export interface Film {
+  id: number;
   title: string;
   movie_banner: string;
   description: string;
@@ -45,7 +45,9 @@ export default function Films({ films, pageCount }: Props) {
         setUpdatedPageCount(response.data.pageCount);
         setLoading(false);
       })
-      .catch((err: AxiosError) => console.log(err));
+      .catch((err: AxiosError) => {
+        console.error(err);
+      });
   }
 
   async function handlePageChange(newPage: number) {
@@ -56,7 +58,7 @@ export default function Films({ films, pageCount }: Props) {
         setPage(newPage);
       })
       .catch((err: AxiosError) => {
-        console.log(err);
+        console.error(err);
       });
   }
 
@@ -105,7 +107,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   try {
     await axios.put('http://localhost:3333/films');
   } catch (err) {
-    console.log('Error updating films: ', (err as AxiosError).message);
+    console.error('Error updating films: ', (err as AxiosError).message);
   }
 
   try {
@@ -115,7 +117,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       props: { ...data },
     };
   } catch (err) {
-    console.log('Error getting films: ', err);
+    console.error('Error getting films: ', err);
     return {
       props: { films: [], pageCount: 0 },
     };

@@ -1,0 +1,23 @@
+{
+  "films": [
+    {
+      "id": 21,
+      "title": "The Red Turtle",
+      "movie_banner": "https://image.tmdb.org/t/p/original/kjXdW5H3myRBmTMYgKayjphr2FA.jpg",
+      "description": "A man set adrift by a storm wakes up on a beach. He discovers that he is on a deserted island with plenty of fresh water, fruit and a dense bamboo forest. He builds a raft from bamboo and attempts to sail away, but his raft is destroyed by an unseen monster in the sea, forcing him back to the island. He tries again with another, larger raft, but is again foiled by the creature. A third attempt again ends with the raft destroyed, but this time he is confronted by a giant red turtle, which stares at him, and forces him back to the island.",
+      "director": "Michaël Dudok de Wit",
+      "producer": "Toshio Suzuki, Isao Takahata, Vincent Maraval, Pascal Caucheteux, Grégoire Sorlat",
+      "created_at": "2022-11-30T17:47:28.102Z"
+    },
+    {
+      "id": 22,
+      "title": "Earwig and the Witch",
+      "movie_banner": "https://www.themoviedb.org/t/p/original/qMxpGzmmnY1jLd4p7EhhoW43wWF.jpg",
+      "description": "An orphan girl, Earwig, is adopted by a witch and comes home to a spooky house filled with mystery and magic.",
+      "director": "Gorō Miyazaki",
+      "producer": "Toshio Suzuki",
+      "created_at": "2022-11-30T17:47:28.102Z"
+    }
+  ],
+  "pageCount": 3
+}

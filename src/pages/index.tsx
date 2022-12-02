@@ -25,7 +25,8 @@ interface Props {
   pageCount: number;
 }
 
-axios.defaults.headers.common['Accept-Encoding'] = 'gzip, deflate';
+// Use this to fetch data from deployed backend from localhost
+// axios.defaults.headers.common['Accept-Encoding'] = 'gzip, deflate';
 
 export default function Films({ films, pageCount }: Props) {
   const [paginatedFilms, setPaginatedFilms] = useState(films);
@@ -37,9 +38,20 @@ export default function Films({ films, pageCount }: Props) {
     setPaginatedFilms([]);
     setLoading(true);
     setPage(1);
+
     await axios
       .put(`${process.env.BACKEND_URL}/films`)
-      .catch((err: AxiosError) => console.log(err));
+      .catch((err: AxiosError) => {
+        console.error(
+          'Error fetching data from Studio Ghibli API.',
+          'Fetching data from seed.',
+        );
+        return axios.put(`${process.env.BACKEND_URL}/films-from-seed`);
+      })
+      .catch((err: AxiosError) => {
+        console.error('Error fetching data from seed', err);
+      });
+
     await axios
       .get(`${process.env.BACKEND_URL}/films`)
       .then((response) => {
@@ -62,6 +74,11 @@ export default function Films({ films, pageCount }: Props) {
       .catch((err: AxiosError) => {
         console.error(err);
       });
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   }
 
   return (
@@ -106,11 +123,18 @@ export default function Films({ films, pageCount }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  try {
-    await axios.put(`${process.env.BACKEND_URL}/films`);
-  } catch (err) {
-    console.error('Error updating films: ', (err as AxiosError).message);
-  }
+  await axios
+    .put(`${process.env.BACKEND_URL}/films`)
+    .catch((err: AxiosError) => {
+      console.error(
+        'Error fetching data from Studio Ghibli API.',
+        'Fetching data from seed.',
+      );
+      return axios.put(`${process.env.BACKEND_URL}/films-from-seed`);
+    })
+    .catch((err: AxiosError) => {
+      console.error('Error fetching data from seed', err);
+    });
 
   try {
     const paginatedFilms = await axios.get(`${process.env.BACKEND_URL}/films`);

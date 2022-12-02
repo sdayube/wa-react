@@ -1,6 +1,11 @@
 import axios, { AxiosError } from 'axios';
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
+import { Stream } from 'stream';
+import { BrotliDecompress } from 'zlib';
+
+import { updateFilms, getPaginatedFilms } from '../requests';
+
 import {
   Container,
   Card,
@@ -20,15 +25,12 @@ export interface Film {
   created_at: string;
 }
 
-interface Props {
+export interface GetFilmResponse {
   films: Film[];
   pageCount: number;
 }
 
-// Use this to fetch data from deployed backend from localhost
-// axios.defaults.headers.common['Accept-Encoding'] = 'gzip, deflate';
-
-export default function Films({ films, pageCount }: Props) {
+export default function Films({ films, pageCount }: GetFilmResponse) {
   const [paginatedFilms, setPaginatedFilms] = useState(films);
   const [updatedPageCount, setUpdatedPageCount] = useState(pageCount);
   const [page, setPage] = useState(1);
@@ -39,29 +41,12 @@ export default function Films({ films, pageCount }: Props) {
     setLoading(true);
     setPage(1);
 
-    await axios
-      .put(`${process.env.BACKEND_URL}/films`)
-      .catch((err: AxiosError) => {
-        console.error(
-          'Error fetching data from Studio Ghibli API.',
-          'Fetching data from seed.',
-        );
-        return axios.put(`${process.env.BACKEND_URL}/films-from-seed`);
-      })
-      .catch((err: AxiosError) => {
-        console.error('Error fetching data from seed', err);
-      });
+    await updateFilms;
+    const filmResponse = await getPaginatedFilms(1);
 
-    await axios
-      .get(`${process.env.BACKEND_URL}/films`)
-      .then((response) => {
-        setPaginatedFilms(response.data.films);
-        setUpdatedPageCount(response.data.pageCount);
-        setLoading(false);
-      })
-      .catch((err: AxiosError) => {
-        console.error(err);
-      });
+    setPaginatedFilms(filmResponse.films);
+    setUpdatedPageCount(filmResponse.pageCount);
+    setLoading(false);
   }
 
   async function handlePageChange(newPage: number) {
@@ -123,22 +108,11 @@ export default function Films({ films, pageCount }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  await axios
-    .put(`${process.env.BACKEND_URL}/films`)
-    .catch((err: AxiosError) => {
-      console.error(
-        'Error fetching data from Studio Ghibli API.',
-        'Fetching data from seed.',
-      );
-      return axios.put(`${process.env.BACKEND_URL}/films-from-seed`);
-    })
-    .catch((err: AxiosError) => {
-      console.error('Error fetching data from seed', err);
-    });
+  await updateFilms;
 
   try {
-    const paginatedFilms = await axios.get(`${process.env.BACKEND_URL}/films`);
-    const { data } = paginatedFilms;
+    const data = await getPaginatedFilms();
+
     return {
       props: { ...data },
     };

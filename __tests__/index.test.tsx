@@ -2,10 +2,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import '@testing-library/jest-dom';
 
-import Home, { Film, getServerSideProps } from '../src/pages/index';
 import { mockedReturns } from '../apiMockedReturn';
 
-jest.mock('axios');
+import Home, { Film, getServerSideProps } from '../src/pages/index';
+import * as requests from '../src/requests';
 
 describe('Home', () => {
   const mockError = () =>
@@ -14,14 +14,15 @@ describe('Home', () => {
   beforeEach(() => {
     const { page1 } = mockedReturns;
 
-    (axios.get as jest.Mock).mockResolvedValue({ data: page1 });
-    (axios.put as jest.Mock).mockResolvedValue({
+    global.window.scrollTo = jest.fn();
+
+    jest.spyOn(axios, 'get').mockResolvedValue({ data: page1 });
+    jest.spyOn(axios, 'put').mockResolvedValue({
       message: 'Films have been updated!',
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 
@@ -45,10 +46,11 @@ describe('Home', () => {
   it('updates and fetches a list of films on server-side', async () => {
     const { page1 } = mockedReturns;
 
+    jest.spyOn(requests, 'getPaginatedFilms').mockResolvedValue(page1);
+
     const serverSideProps = await getServerSideProps({} as any);
 
-    expect(axios.put).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(requests.getPaginatedFilms).toHaveBeenCalledTimes(1);
     expect(serverSideProps).toEqual({
       props: {
         films: page1.films,
@@ -60,20 +62,22 @@ describe('Home', () => {
   it('does not update the list of films on server-side if there is an error', async () => {
     const { page1 } = mockedReturns;
 
-    (axios.put as jest.Mock).mockRejectedValue({
+    jest.spyOn(axios, 'put').mockRejectedValue({
       message: 'There was an error updating the films',
     });
+
+    jest.spyOn(requests, 'getPaginatedFilms').mockResolvedValue(page1);
 
     const error = mockError();
 
     const serverSideProps = await getServerSideProps({} as any);
 
-    expect(axios.put).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(axios.put).toHaveBeenCalledTimes(2);
+    expect(requests.getPaginatedFilms).toHaveBeenCalledTimes(1);
 
     expect(error).toHaveBeenCalledWith(
-      'Error updating films: ',
-      'There was an error updating the films',
+      'Error fetching data from Studio Ghibli API.',
+      'Fetching data from seed.',
     );
 
     expect(serverSideProps).toEqual({

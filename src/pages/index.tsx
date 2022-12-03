@@ -41,12 +41,19 @@ export default function Films({ films, pageCount }: GetFilmResponse) {
     setLoading(true);
     setPage(1);
 
-    await updateFilms;
-    const filmResponse = await getPaginatedFilms(1);
+    await updateFilms();
 
-    setPaginatedFilms(filmResponse.films);
-    setUpdatedPageCount(filmResponse.pageCount);
-    setLoading(false);
+    await axios
+      .get(`${process.env.BACKEND_URL}/films`)
+      .then((response) => {
+        setPaginatedFilms(response.data.films);
+        setUpdatedPageCount(response.data.pageCount);
+        setLoading(false);
+      })
+      .catch((error: AxiosError) => {
+        console.error(error);
+        setLoading(false);
+      });
   }
 
   async function handlePageChange(newPage: number) {
@@ -108,7 +115,7 @@ export default function Films({ films, pageCount }: GetFilmResponse) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  await updateFilms;
+  await updateFilms();
 
   try {
     const data = await getPaginatedFilms();
